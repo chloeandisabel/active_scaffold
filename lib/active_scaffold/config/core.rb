@@ -80,6 +80,12 @@ module ActiveScaffold::Config
     cattr_accessor :highlight_messages
     @@highlight_messages = nil
 
+    # true/false indicating where to store constraint information, default is in the session, and it is secure, however to
+    # work around cookie overflow issues if you're using activescaffold on a secure backend storing the constraints in the
+    # parameters is desired.
+    cattr_accessor :constraints_from_parameters
+    @@constraints_from_parameters = false
+
     # instance-level configuration
     # ----------------------------
 

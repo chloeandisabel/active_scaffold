@@ -103,6 +103,26 @@ module ActiveScaffold
 
   # at some point we need to pass the session and params into config. we'll just take care of that before any particular action occurs by passing those hashes off to the UserSettings class of each action.
   def handle_user_settings
+
+    if active_scaffold_config.constraints_from_parameters
+      # i hate doing this but it looks like AS relies on these items being in the session initially...
+      # so i'm letting it add them then pull them back out.
+      if (params.keys & %w(adapter embedded)).blank?
+        session_backup = Hash.new
+
+        self.session.to_hash.each do |k, v|
+          session_backup[k] = v unless k.to_s =~ /\Aas:/
+        end
+
+        # delete all keys - setting the as:* keys to nil is not good enough as we
+        # can still exceed the cookie limit
+        reset_session
+
+        # recreate the original session minus as:* variables
+        session_backup.each { |k,v| session[k] = v }
+      end
+    end
+
     if self.class.uses_active_scaffold?
       active_scaffold_config.actions.each do |action_name|
         conf_instance = active_scaffold_config.send(action_name) rescue next

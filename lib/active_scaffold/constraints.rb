@@ -5,7 +5,17 @@ module ActiveScaffold
 
     # Returns the current constraints
     def active_scaffold_constraints
-      @active_scaffold_constraints ||= active_scaffold_session_storage[:constraints] || {}
+      @active_scaffold_constraints ||= begin
+        if active_scaffold_config.constraints_from_parameters
+          if params.include?('constraints')
+            params['constraints'].split(',').inject({}){|r, a| r.merge(a.split('=')[0] => a.split('=')[1]) }
+          else
+            {}
+          end
+        else
+          active_scaffold_session_storage[:constraints] || {}
+        end
+      end
     end
 
     # For each enabled action, adds the constrained columns to the ActionColumns object (if it exists).

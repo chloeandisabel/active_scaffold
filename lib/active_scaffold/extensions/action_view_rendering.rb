@@ -38,16 +38,17 @@ module ActionView::Helpers #:nodoc:
       if args.first.is_a? Hash and args.first[:active_scaffold]
         require 'digest/md5'
         options = args.first
-
         remote_controller = options[:active_scaffold]
         constraints = options[:constraints]
         conditions = options[:conditions]
         eid = Digest::MD5.hexdigest(params[:controller] + remote_controller.to_s + constraints.to_s + conditions.to_s)
         eid_info = session["as:#{eid}"] ||= {}
-        if constraints
-          eid_info[:constraints] = constraints 
-        else
-          eid_info.delete :constraints
+        unless active_scaffold_config.constraints_from_parameters
+          if constraints
+            eid_info[:constraints] = constraints
+          else
+            eid_info.delete :constraints
+          end
         end
         if conditions
           eid_info[:conditions] = conditions
@@ -62,6 +63,10 @@ module ActionView::Helpers #:nodoc:
         session.delete "as:#{eid}" if eid_info.empty?
         options[:params] ||= {}
         options[:params].merge! :eid => eid, :embedded => true
+
+        if active_scaffold_config.constraints_from_parameters
+          options[:params].merge! constraints: constraints.to_query
+        end
 
         id = "as_#{eid}-embedded"
         url_options = {:controller => remote_controller.to_s, :action => 'index'}.merge(options[:params])
