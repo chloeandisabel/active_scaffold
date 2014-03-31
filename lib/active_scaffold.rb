@@ -111,7 +111,13 @@ module ActiveScaffold
           session_backup = Hash.new
 
           self.session.to_hash.each do |k, v|
-            session_backup[k] = v unless k.to_s =~ /\Aas:/
+            if k.to_s =~ /\Aas:/
+              if v.to_s.include?('sort')
+                session_backup[k] = v
+              end
+            else
+              session_backup[k] = v
+            end
           end
 
           # delete all keys - setting the as:* keys to nil is not good enough as we
