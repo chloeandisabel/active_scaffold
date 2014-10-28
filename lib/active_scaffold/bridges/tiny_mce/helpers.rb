@@ -21,15 +21,15 @@ class ActiveScaffold::Bridges::TinyMce
 
         html = []
         html << send(override_input(:textarea), column, options)
-        html << javascript_tag(settings + "tinyMCE.execCommand('mceAddControl', false, '#{options[:id]}');") if request.xhr? || params[:iframe]
+        html << javascript_tag(settings + "tinyMCE.execCommand('mceAddEditor', false, '#{options[:id]}');") if request.xhr? || params[:iframe]
         html.join "\n"
       end
 
       def onsubmit_with_tiny_mce
         if ActiveScaffold.js_framework == :jquery
-          submit_js = 'tinyMCE.triggerSave();$(\'textarea.mceEditor\').each(function(index, elem) { tinyMCE.execCommand(\'mceRemoveControl\', false, $(elem).attr(\'id\')); });'
+          submit_js = 'tinyMCE.triggerSave();$(\'textarea.mceEditor\').each(function(index, elem) { tinyMCE.execCommand(\'mceRemoveEditor\', false, $(elem).attr(\'id\')); });'
         else
-          submit_js = 'tinyMCE.triggerSave();this.select(\'textarea.mceEditor\').each(function(elem) { tinyMCE.execCommand(\'mceRemoveControl\', false, elem.id); });'
+          submit_js = 'tinyMCE.triggerSave();this.select(\'textarea.mceEditor\').each(function(elem) { tinyMCE.execCommand(\'mceRemoveEditor\', false, elem.id); });'
         end
         [onsubmit_without_tiny_mce, submit_js].compact.join ';'
       end
